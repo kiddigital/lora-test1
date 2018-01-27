@@ -4,6 +4,8 @@ import socket
 import time
 from network import LoRa
 
+import myconfig
+
 # Colors
 off = 0x000000
 red = 0x330000
@@ -16,12 +18,12 @@ pycom.heartbeat(False)
 # Initialize LoRaWAN radio
 lora = LoRa(mode=LoRa.LORAWAN)
 
-# Print Dev EUI 0x70B3D54996B3540D
+# Print Dev EUI of your device (handy to register your device :)
 print(binascii.hexlify(lora.mac()).upper().decode('utf-8'))
 
 # Set network keys
-app_eui = binascii.unhexlify('70B3D57EF0005794')
-app_key = binascii.unhexlify('963688148EA85160738BACE5D4A07FF8')
+app_eui = myconfig.cfg['app_eui']
+app_key = myconfig.cfg['app_key']
 
 # Join the network
 lora.join(activation=LoRa.OTAA, auth=(app_eui, app_key), timeout=0, dr=0)
@@ -49,14 +51,13 @@ s.setblocking(True)
 i = 0
 while i < 10:
     data = 'Hello World %s' % i
-    #count = s.send(bytes([i % 256]))
 
     pycom.rgbled(blue)
     count = s.send(data.encode('UTF-8'))
     print('Sent %s bytes' % count)
-    #time.sleep(3.0)
 
     pycom.rgbled(green)
+    #time.sleep(3.0)
     s.settimeout(3.0) # configure a timeout value of 3 seconds
     try:
         answer = s.recv(64)   # get the packet received (if any)
